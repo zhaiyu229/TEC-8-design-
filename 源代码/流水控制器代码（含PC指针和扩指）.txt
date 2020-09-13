@@ -1,0 +1,317 @@
+library ieee;
+use ieee.std_logic_1164.all;
+
+entity floating is
+port(CLR,T3,C,Z:in std_logic;
+SW:in std_logic_vector(2 downto 0);
+IR:in std_logic_vector(7 downto 4);
+w:in std_logic_vector(1 to 3);
+LDZ,LDC,CIN,M,ABUS,DRW,PCINC,LPC,LAR,PCADD,ARINC,SELCTL,MEMW,STOP,LIR,SBUS,MBUS,SHORT,LONG:out std_logic;
+S:out std_logic_vector(3 downto 0);
+SEL:out std_logic_vector(3 downto 0));
+end floating;
+
+architecture behavior of floating is
+signal st0,sst0:std_logic;
+begin
+	process(CLR,sst0,w,C,Z)
+		begin
+		if(CLR='0') then
+			sst0<='0';
+			st0<='0';
+			LDZ<='0';
+			LDC<='0';
+			CIN<='0';
+			M<='0';
+			ABUS<='0';
+			DRW<='0';
+			PCINC<='0';
+			LPC<='0';
+			LAR<='0';
+			PCADD<='0';
+			ARINC<='0';
+			SELCTL<='0';
+			MEMW<='0';
+			STOP<='0';
+			LIR<='0';
+			SBUS<='0';
+			MBUS<='0';
+			SHORT<='0';
+			LONG<='0';
+			S<="0000";
+			SEl<="0000";	
+		else
+			LDZ<='0';
+			LDC<='0';
+			CIN<='0';
+			M<='0';
+			ABUS<='0';
+			DRW<='0';
+			PCINC<='0';
+			LPC<='0';
+			LAR<='0';
+			PCADD<='0';
+			ARINC<='0';
+			SELCTL<='0';
+			MEMW<='0';
+			STOP<='0';
+			LIR<='0';
+			SBUS<='0';
+			MBUS<='0';
+			SHORT<='0';
+			LONG<='0';
+			S<="0000";
+			SEl<="0000";
+			if (sst0='1' ) then
+				if(T3'event and (T3='0')) then
+					st0<=not st0;
+				end if;
+			end if;						
+		case SW is
+		when "100" => 
+			if(st0='0' and w(1)='1')	then
+				SBUS<='1';
+				SEL<="0011";
+				SELCTL<='1';
+				DRW<='1';
+				STOP<='1';
+				sst0<='0';
+			elsif(st0='0' and w(2)='1') then
+				SBUS<='1';
+				SEL<="0100";
+				SELCTL<='1';
+				STOP<='1';
+				DRW<='1';
+				sst0<='1';
+			elsif(st0='1'and w(1)='1') then
+				SBUS<='1';
+				SEL<="1001";
+				SELCTL<='1';
+				DRW<='1';		
+				STOP<='1';
+				sst0<='0';
+			elsif(st0='1'and w(2)='1') then
+				SBUS<='1';
+				SEL<="1110";
+				SELCTL<='1';
+				DRW<='1';		
+				STOP<='1';
+				sst0<='1';
+			end if;
+		when "011" =>
+			if(w(1)='1') then
+				SEl<="0001";
+				SELCTL<='1';
+				STOP<='1';
+			
+			elsif(w(2)='1') then
+				SEl<="1011";
+				SELCTL<='1';
+				STOP<='1';
+			end if;
+		when "010"=>
+			if(st0='0' and w(1)='1') then
+				SBUS<='1';
+				LAR<='1';
+				STOP<='1';
+				sst0<='1';
+				SHORT<='1';
+				SELCTL<='1';
+			
+			elsif(st0='1' and w(1)='1') then
+				MBUS<='1';
+				ARINC<='1';
+				STOP<='1';
+				SHORT<='1';
+				SELCTL<='1';
+				sst0<='0';
+			end if;
+		when "001"=>
+			if(st0='0' and w(1)='1') then
+				SBUS<='1';
+				LAR<='1';
+				STOP<='1';
+				sst0<='1';
+				SHORT<='1';
+				SELCTL<='1';
+			
+			elsif(st0='1' and w(1)='1') then
+				SBUS<='1';
+				MEMW<='1';
+				ARINC<='1';
+				STOP<='1';
+				SHORT<='1';
+				SELCTL<='1';
+				sst0<='0';
+			end if;
+		when "000" =>
+		
+			if(st0='0') then 
+				SBUS<='1';
+				LPC<='1';
+				stop<='1';
+				sst0<='1';
+				short<='1';
+			else
+			case IR is
+				when "0001" =>
+					if( w(1)='1') then 
+						LIR<='1';
+						PCINC<='1';
+						S<="1001";
+						CIN<='1';
+						ABUS<='1';
+						DRW<='1';
+						LDZ<='1';
+						LDC<='1';
+						SHORT<='1';
+			
+					end if;
+				when "0010" =>
+					if(w(1)='1') then 
+						LIR<='1';
+						PCINC<='1';
+						S<="0110";
+						ABUS<='1';
+						DRW<='1';
+						LDZ<='1';
+						LDC<='1';
+						SHORT<='1';
+			
+					end if;
+				when "0011" => 
+					if( w(1)='1') then
+						LIR<='1';
+						PCINC<='1';
+						M<='1';
+						S<="1011";
+						ABUS<='1';
+						DRW<='1';
+						LDZ<='1';
+						SHORT<='1';
+					
+					end if;
+				when "0100" =>
+					if( w(1)='1') then
+						LIR<='1';
+						PCINC<='1';
+						S<="0000";
+						ABUS<='1';
+						DRW<='1';
+						LDZ<='1';
+						LDC<='1';
+						SHORT<='1';
+					end if;
+				when "0101" =>
+					if(w(1)='1') then 
+						M<='1';
+						S<="1010";
+						ABUS<='1';
+						LAR<='1';
+					end if;
+					if(w(2)='1') then
+						DRW<='1';
+						MBUS<='1';
+						LIR<='1';
+						PCINC<='1';
+					end if;
+				when "0110" =>
+					if(w(1)='1') then
+						M<='1';
+						S<="1111";
+						ABUS<='1';
+						LAR<='1';
+					end if;
+					if(w(2)='1') then 
+						S<="1010";
+						M<='1';
+						ABUS<='1';
+						MEMW<='1';
+						LIR<='1';
+						PCINC<='1';
+					end if;
+				when "0111" =>
+					if(w(1)='1') then
+						if(C='1')	then
+							PCADD<='1';
+						else 
+							LIR<='1';
+							PCINC<='1';
+							SHORT<='1';
+						end if;
+					elsif(w(2)='1') then
+							LIR<='1';
+							PCINC<='1';
+					end if;
+				when "1000" => 
+					if(w(1)='1') then
+						if(Z='1')	then
+							PCADD<='1';
+						else 
+							LIR<='1';
+							PCINC<='1';
+							SHORT<='1';
+						end if;
+					elsif(w(2)='1') then
+							LIR<='1';
+							PCINC<='1';
+					end if;
+				when "1001" =>
+					if(w(1)='1' ) then
+						M<='1';
+						S<="1111";
+						ABUS<='1';
+						LPC<='1';
+					elsif(w(2)='1') then
+						LIR<='1';
+						PCINC<='1';
+					end if;
+				when "1100" =>
+				    if(w(1)='1') then
+						LIR<='1';
+						PCINC<='1';
+			            M<='1';
+			            S<="1110";
+			            ABUS<='1';
+			            DRW<='1';
+			            LDZ<='1';
+			            SHORT<='1';
+			        end if;
+			    when "1011" =>
+			        if( w(1)='1') then
+						LIR<='1';
+						PCINC<='1';
+			            M<='1';
+			            S<="0110";
+			            ABUS<='1';
+			            DRW<='1';
+			            LDZ<='1';
+			            SHORT<='1';
+			         end if;
+			   when "1101" => 
+					 if( w(1)='1') then
+					  	LIR<='1';
+						PCINC<='1';
+						M<='1';
+						S<="0000";
+						DRW<='1';
+						ABUS<='1';
+						SHORT<='1';
+					  end if;
+				when "1110" => 
+					if( w(1)='1') then
+						STOP<='1';
+					end if;
+				when others =>
+					LIR<='1';
+					PCINC<='1';	
+					sst0<='0';
+					SHORT<='1';
+			end case;
+			end if;
+		when others =>
+			NULL;
+		end case;
+	end if;
+	end process;
+end behavior;
